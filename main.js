@@ -419,6 +419,7 @@ var WeatherCardsMenuComponent = /** @class */ (function () {
         this.items = [];
         this.apiKey = '5cc57e061cd35f51f5fd9d6564258e4d';
         this.url = 'https://api.openweathermap.org/data/2.5/weather?APPID=';
+        this.metric = '&mode=json&units=metric';
         this.firebase = __webpack_require__(/*! firebase/app */ "./node_modules/firebase/app/dist/index.cjs.js");
         this.testArrayOfItems = [];
         this.currentUID = this.firebase.auth().currentUser.uid;
@@ -442,7 +443,7 @@ var WeatherCardsMenuComponent = /** @class */ (function () {
                 this.itemService.getItems().subscribe(function (items) {
                     console.log(items);
                     items.forEach(function (element) {
-                        _this.http.get(_this.url + _this.apiKey + '&q=' + element.cityName).subscribe(function (response) {
+                        _this.http.get(_this.url + _this.apiKey + '&q=' + element.cityName + _this.metric).subscribe(function (response) {
                             response['fireID'] = element.id;
                             _this.testArrayOfItems.push(response);
                             console.log(_this.testArrayOfItems);
