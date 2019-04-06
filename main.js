@@ -418,7 +418,7 @@ var WeatherCardsMenuComponent = /** @class */ (function () {
         this.afs = afs;
         this.items = [];
         this.apiKey = '5cc57e061cd35f51f5fd9d6564258e4d';
-        this.url = 'http://api.openweathermap.org/data/2.5/weather?APPID=';
+        this.url = 'https://api.openweathermap.org/data/2.5/weather?APPID=';
         this.firebase = __webpack_require__(/*! firebase/app */ "./node_modules/firebase/app/dist/index.cjs.js");
         this.testArrayOfItems = [];
         this.currentUID = this.firebase.auth().currentUser.uid;
