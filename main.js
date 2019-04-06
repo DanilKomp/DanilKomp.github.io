@@ -317,7 +317,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 /* harmony import */ var _angular_fire_firestore__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/fire/firestore */ "./node_modules/@angular/fire/firestore/index.js");
-/* harmony import */ var _auth_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./auth.service */ "./src/app/services/auth.service.ts");
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm5/operators/index.js");
 
 
 
@@ -329,20 +329,31 @@ var City = /** @class */ (function () {
 }());
 
 var ItemService = /** @class */ (function () {
-    function ItemService(afs, AuthService) {
+    function ItemService(afs) {
+        // this.items = this.afs.collection('users').doc(this.firebase.auth().currentUser.uid).collection('items').valueChanges();
         this.afs = afs;
-        this.AuthService = AuthService;
         this.firebase = __webpack_require__(/*! firebase/app */ "./node_modules/firebase/app/dist/index.cjs.js");
-        this.items = this.afs.collection('users').doc(this.firebase.auth().currentUser.uid).collection('items').valueChanges();
+        this.items = this.afs.collection('users').doc(this.firebase.auth().currentUser.uid).collection('items').snapshotChanges().pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["map"])(function (changes) {
+            return changes.map(function (a) {
+                var data = a.payload.doc.data();
+                data.id = a.payload.doc.id;
+                return data;
+            });
+        }));
     }
     ItemService.prototype.getItems = function () {
         return this.items;
+    };
+    ItemService.prototype.deleteItem = function (city) {
+        this.itemDoc = this.afs.doc("users/" + this.firebase.auth().currentUser.uid + "/items/" + city.fireID);
+        console.log(city.fireID);
+        this.itemDoc.delete();
     };
     ItemService = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
             providedIn: 'root'
         }),
-        tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"]("design:paramtypes", [_angular_fire_firestore__WEBPACK_IMPORTED_MODULE_2__["AngularFirestore"], _auth_service__WEBPACK_IMPORTED_MODULE_3__["AuthService"]])
+        tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"]("design:paramtypes", [_angular_fire_firestore__WEBPACK_IMPORTED_MODULE_2__["AngularFirestore"]])
     ], ItemService);
     return ItemService;
 }());
@@ -358,7 +369,7 @@ var ItemService = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ".container{\n    width: 100%;\n    margin: 5em auto;\n    padding: 0;\n    background: #ffffff;\n}\n\n#prev,\n#next{\n    width: 50px;\n    height: 50px;\n}\n\n.items{\n    min-width: 300px;\n    min-height: 350px;\n    padding: 10px;\n    border-radius: 15px;\n    box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.3);\n    background: #fff;\n    margin: 5px 10px 5px 10px;\n}\n\n/* add city card */\n\n.addCityBtn{\n    max-height: 150px;\n    max-width: 150px;\n    text-align: center;\n}\n\n.plusImg{\n    max-height: 100px;\n    max-width: 100px;\n}\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvd2VhdGhlci1jYXJkcy1tZW51L3dlYXRoZXItY2FyZHMtbWVudS5jb21wb25lbnQuY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0lBQ0ksV0FBVztJQUNYLGdCQUFnQjtJQUNoQixVQUFVO0lBQ1YsbUJBQW1CO0FBQ3ZCOztBQUVBOztJQUVJLFdBQVc7SUFDWCxZQUFZO0FBQ2hCOztBQUVBO0lBQ0ksZ0JBQWdCO0lBQ2hCLGlCQUFpQjtJQUNqQixhQUFhO0lBQ2IsbUJBQW1CO0lBQ25CLHdDQUF3QztJQUN4QyxnQkFBZ0I7SUFDaEIseUJBQXlCO0FBQzdCOztBQUVBLGtCQUFrQjs7QUFFbEI7SUFDSSxpQkFBaUI7SUFDakIsZ0JBQWdCO0lBQ2hCLGtCQUFrQjtBQUN0Qjs7QUFFQTtJQUNJLGlCQUFpQjtJQUNqQixnQkFBZ0I7QUFDcEIiLCJmaWxlIjoic3JjL2FwcC93ZWF0aGVyLWNhcmRzLW1lbnUvd2VhdGhlci1jYXJkcy1tZW51LmNvbXBvbmVudC5jc3MiLCJzb3VyY2VzQ29udGVudCI6WyIuY29udGFpbmVye1xuICAgIHdpZHRoOiAxMDAlO1xuICAgIG1hcmdpbjogNWVtIGF1dG87XG4gICAgcGFkZGluZzogMDtcbiAgICBiYWNrZ3JvdW5kOiAjZmZmZmZmO1xufVxuXG4jcHJldixcbiNuZXh0e1xuICAgIHdpZHRoOiA1MHB4O1xuICAgIGhlaWdodDogNTBweDtcbn1cblxuLml0ZW1ze1xuICAgIG1pbi13aWR0aDogMzAwcHg7XG4gICAgbWluLWhlaWdodDogMzUwcHg7XG4gICAgcGFkZGluZzogMTBweDtcbiAgICBib3JkZXItcmFkaXVzOiAxNXB4O1xuICAgIGJveC1zaGFkb3c6IDAgMCAzcHggMCByZ2JhKDAsIDAsIDAsIDAuMyk7XG4gICAgYmFja2dyb3VuZDogI2ZmZjtcbiAgICBtYXJnaW46IDVweCAxMHB4IDVweCAxMHB4O1xufVxuXG4vKiBhZGQgY2l0eSBjYXJkICovXG5cbi5hZGRDaXR5QnRue1xuICAgIG1heC1oZWlnaHQ6IDE1MHB4O1xuICAgIG1heC13aWR0aDogMTUwcHg7XG4gICAgdGV4dC1hbGlnbjogY2VudGVyO1xufVxuXG4ucGx1c0ltZ3tcbiAgICBtYXgtaGVpZ2h0OiAxMDBweDtcbiAgICBtYXgtd2lkdGg6IDEwMHB4O1xufVxuIl19 */"
+module.exports = ".container{\n    width: 100%;\n    margin: 5em auto;\n    padding: 0;\n    background: #ffffff;\n}\n\n#prev,\n#next{\n    width: 50px;\n    height: 50px;\n}\n\n.items{\n    min-width: 300px;\n    min-height: 350px;\n    padding: 10px;\n    border-radius: 15px;\n    box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.3);\n    background: #fff;\n    margin: 5px 10px 5px 10px;\n}\n\n/* add city card */\n\n.addCityBtn{\n    max-height: 150px;\n    max-width: 150px;\n    text-align: center;\n}\n\n.plusImg{\n    max-height: 100px;\n    max-width: 100px;\n}\n\n/* Weather card */\n\n.containerOfWeatherCards {\n    width: 100%;\n    height: 350px;\n    margin: 5em auto;\n    padding: 0;\n    background: #ffffff;\n    overflow-x: scroll;\n    /* display: flex; */\n    padding-right: 15px;\n}\n\n.weatherCard {\n    height: 300px;\n    width: 150px;\n    border-radius: 10px;\n    box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.3);\n    display: inline-block;  \n    margin: 15px;\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvd2VhdGhlci1jYXJkcy1tZW51L3dlYXRoZXItY2FyZHMtbWVudS5jb21wb25lbnQuY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0lBQ0ksV0FBVztJQUNYLGdCQUFnQjtJQUNoQixVQUFVO0lBQ1YsbUJBQW1CO0FBQ3ZCOztBQUVBOztJQUVJLFdBQVc7SUFDWCxZQUFZO0FBQ2hCOztBQUVBO0lBQ0ksZ0JBQWdCO0lBQ2hCLGlCQUFpQjtJQUNqQixhQUFhO0lBQ2IsbUJBQW1CO0lBQ25CLHdDQUF3QztJQUN4QyxnQkFBZ0I7SUFDaEIseUJBQXlCO0FBQzdCOztBQUVBLGtCQUFrQjs7QUFFbEI7SUFDSSxpQkFBaUI7SUFDakIsZ0JBQWdCO0lBQ2hCLGtCQUFrQjtBQUN0Qjs7QUFFQTtJQUNJLGlCQUFpQjtJQUNqQixnQkFBZ0I7QUFDcEI7O0FBRUEsaUJBQWlCOztBQUVqQjtJQUNJLFdBQVc7SUFDWCxhQUFhO0lBQ2IsZ0JBQWdCO0lBQ2hCLFVBQVU7SUFDVixtQkFBbUI7SUFDbkIsa0JBQWtCO0lBQ2xCLG1CQUFtQjtJQUNuQixtQkFBbUI7QUFDdkI7O0FBRUE7SUFDSSxhQUFhO0lBQ2IsWUFBWTtJQUNaLG1CQUFtQjtJQUNuQix3Q0FBd0M7SUFDeEMscUJBQXFCO0lBQ3JCLFlBQVk7QUFDaEIiLCJmaWxlIjoic3JjL2FwcC93ZWF0aGVyLWNhcmRzLW1lbnUvd2VhdGhlci1jYXJkcy1tZW51LmNvbXBvbmVudC5jc3MiLCJzb3VyY2VzQ29udGVudCI6WyIuY29udGFpbmVye1xuICAgIHdpZHRoOiAxMDAlO1xuICAgIG1hcmdpbjogNWVtIGF1dG87XG4gICAgcGFkZGluZzogMDtcbiAgICBiYWNrZ3JvdW5kOiAjZmZmZmZmO1xufVxuXG4jcHJldixcbiNuZXh0e1xuICAgIHdpZHRoOiA1MHB4O1xuICAgIGhlaWdodDogNTBweDtcbn1cblxuLml0ZW1ze1xuICAgIG1pbi13aWR0aDogMzAwcHg7XG4gICAgbWluLWhlaWdodDogMzUwcHg7XG4gICAgcGFkZGluZzogMTBweDtcbiAgICBib3JkZXItcmFkaXVzOiAxNXB4O1xuICAgIGJveC1zaGFkb3c6IDAgMCAzcHggMCByZ2JhKDAsIDAsIDAsIDAuMyk7XG4gICAgYmFja2dyb3VuZDogI2ZmZjtcbiAgICBtYXJnaW46IDVweCAxMHB4IDVweCAxMHB4O1xufVxuXG4vKiBhZGQgY2l0eSBjYXJkICovXG5cbi5hZGRDaXR5QnRue1xuICAgIG1heC1oZWlnaHQ6IDE1MHB4O1xuICAgIG1heC13aWR0aDogMTUwcHg7XG4gICAgdGV4dC1hbGlnbjogY2VudGVyO1xufVxuXG4ucGx1c0ltZ3tcbiAgICBtYXgtaGVpZ2h0OiAxMDBweDtcbiAgICBtYXgtd2lkdGg6IDEwMHB4O1xufVxuXG4vKiBXZWF0aGVyIGNhcmQgKi9cblxuLmNvbnRhaW5lck9mV2VhdGhlckNhcmRzIHtcbiAgICB3aWR0aDogMTAwJTtcbiAgICBoZWlnaHQ6IDM1MHB4O1xuICAgIG1hcmdpbjogNWVtIGF1dG87XG4gICAgcGFkZGluZzogMDtcbiAgICBiYWNrZ3JvdW5kOiAjZmZmZmZmO1xuICAgIG92ZXJmbG93LXg6IHNjcm9sbDtcbiAgICAvKiBkaXNwbGF5OiBmbGV4OyAqL1xuICAgIHBhZGRpbmctcmlnaHQ6IDE1cHg7XG59XG5cbi53ZWF0aGVyQ2FyZCB7XG4gICAgaGVpZ2h0OiAzMDBweDtcbiAgICB3aWR0aDogMTUwcHg7XG4gICAgYm9yZGVyLXJhZGl1czogMTBweDtcbiAgICBib3gtc2hhZG93OiAwIDAgM3B4IDAgcmdiYSgwLCAwLCAwLCAwLjMpO1xuICAgIGRpc3BsYXk6IGlubGluZS1ibG9jazsgIFxuICAgIG1hcmdpbjogMTVweDtcbn0iXX0= */"
 
 /***/ }),
 
@@ -369,7 +380,7 @@ module.exports = ".container{\n    width: 100%;\n    margin: 5em auto;\n    padd
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"container\">\n  <div ng2-carouselamos class=\"slides-wrapper\"\n    [items]=\"items\"\n    [width]=\"960\"\n    [$prev]=\"prev\"\n    [$next]=\"next\"\n    [$item]=\"item\">\n\n  </div>\n\n  <ng-template #prev>\n    <img src=\"../../assets/img/left.png\" alt=\"prev\" id=\"prev\">\n  </ng-template>\n  \n  <ng-template #next>\n    <img src=\"../../assets/img/right.png\" alt=\"next\" id=\"next\">\n  </ng-template>\n\n  <ng-template #item let-item let-i=\"index\">\n    \n    <div class=\"items\" id=\"id\" *ngIf=\"auth.user | async as user\">\n      <span>City name: </span> {{ testArrayOfItems[i].name }} <br>\n      <span>Temp: </span> {{ testArrayOfItems[i].main.temp }} <br>\n      <span>Humidity: </span> {{ testArrayOfItems[i].main.humidity }} <br>\n    </div>\n\n  </ng-template>\n\n  <div>\n    <input type=\"text\" class=\"addCityInput\" [(ngModel)]=\"cityName\">\n    <button (click)=\"AddACollectionOfCities()\">Add city</button>\n  </div>\n\n\n  <!-- <div class=\"items addCityCard\">\n    <strong>New city</strong>\n    <button class=\"btn addCityBtn\">\n      <img class=\"plusImg\" src=\"../../assets/img/plus.png\" alt=\"Add city\">\n    </button>\n  </div> -->"
+module.exports = "<!-- <div class=\"container\">\n  <div ng2-carouselamos class=\"slides-wrapper\"\n    [items]=\"items\"\n    [width]=\"960\"\n    [$prev]=\"prev\"\n    [$next]=\"next\"\n    [$item]=\"item\">\n\n  </div>\n\n  <ng-template #prev>\n    <img src=\"../../assets/img/left.png\" alt=\"prev\" id=\"prev\">\n  </ng-template>\n  \n  <ng-template #next>\n    <img src=\"../../assets/img/right.png\" alt=\"next\" id=\"next\">\n  </ng-template>\n\n  <ng-template #item let-item let-i=\"index\">\n    \n    <div class=\"items\" id=\"id\" *ngIf=\"auth.user | async as user\">\n      <button class=\"deleteCity\" (click)=\"getMarkers()\">Delete</button>\n      <span>City name: </span> {{ testArrayOfItems[i].name }} {{ items[i].cityName }} {{ items[i].id }}<br>\n      <span>Temp: </span> {{ testArrayOfItems[i].main.temp }} <br>\n      <span>Humidity: </span> {{ testArrayOfItems[i].main.humidity }} <br>\n    </div>\n\n  </ng-template> -->\n\n  <div class=\"containerOfWeatherCards\">\n    <div class=\"weatherCard\" (dblclick)=\"deleteItem($event, item)\" *ngFor='let item of testArrayOfItems'>\n      <!-- ng-repeat=\"testArrayOfItems | orderBy: 'name'\"  -->\n      <span>City name: </span> {{ item.name }} <br>\n      <span>Temp: </span> {{ item.main.temp }} <br>\n      <span>Humidity: </span> {{ item.main.humidity }} <br>\n    </div>\n  </div>\n\n  <div>\n    <input type=\"text\" class=\"addCityInput\" [(ngModel)]=\"cityName\">\n    <button (click)=\"AddACollectionOfCities()\">Add city</button>\n  </div>\n\n\n  <!-- <div class=\"items addCityCard\">\n    <strong>New city</strong>\n    <button class=\"btn addCityBtn\">\n      <img class=\"plusImg\" src=\"../../assets/img/plus.png\" alt=\"Add city\">\n    </button>\n  </div> -->"
 
 /***/ }),
 
@@ -405,10 +416,9 @@ var WeatherCardsMenuComponent = /** @class */ (function () {
         this.http = http;
         this.afAuth = afAuth;
         this.afs = afs;
+        this.items = [];
         this.apiKey = '5cc57e061cd35f51f5fd9d6564258e4d';
         this.url = 'http://api.openweathermap.org/data/2.5/weather?APPID=';
-        this.nameOfCity = '';
-        this.firebaseTestArray = ["London", "LA", "Florida"];
         this.firebase = __webpack_require__(/*! firebase/app */ "./node_modules/firebase/app/dist/index.cjs.js");
         this.testArrayOfItems = [];
         this.currentUID = this.firebase.auth().currentUser.uid;
@@ -426,16 +436,28 @@ var WeatherCardsMenuComponent = /** @class */ (function () {
         console.log("ngOnChanges works!");
     };
     WeatherCardsMenuComponent.prototype.getItemsAndWeather = function () {
-        var _this = this;
-        this.itemService.getItems().subscribe(function (items) {
-            console.log(items);
-            items.forEach(function (element) {
-                return _this.http.get(_this.url + _this.apiKey + '&q=' + element.cityName).subscribe(function (response) {
-                    _this.json = response;
-                    console.log(_this.json);
-                    _this.testArrayOfItems.push(_this.json);
-                    console.log(_this.testArrayOfItems);
+        return tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"](this, void 0, void 0, function () {
+            var _this = this;
+            return tslib__WEBPACK_IMPORTED_MODULE_0__["__generator"](this, function (_a) {
+                this.itemService.getItems().subscribe(function (items) {
+                    console.log(items);
+                    items.forEach(function (element) {
+                        _this.http.get(_this.url + _this.apiKey + '&q=' + element.cityName).subscribe(function (response) {
+                            response['fireID'] = element.id;
+                            _this.testArrayOfItems.push(response);
+                            console.log(_this.testArrayOfItems);
+                        });
+                    });
+                    // for(let i = 0; i <= items.length; i++ ) {
+                    //       this.http.get(this.url + this.apiKey + '&q=' + items[i].cityName).subscribe(
+                    //         (response) => {
+                    //           this.testArrayOfItems.push(response);
+                    //           console.log(this.testArrayOfItems);
+                    //         }
+                    //       );
+                    // }
                 });
+                return [2 /*return*/];
             });
         });
     };
@@ -443,6 +465,10 @@ var WeatherCardsMenuComponent = /** @class */ (function () {
         this.afs.collection("users").doc(this.currentUID).collection("items").add({
             cityName: this.cityName,
         });
+        this.testArrayOfItems = [];
+    };
+    WeatherCardsMenuComponent.prototype.deleteItem = function (event, city) {
+        this.itemService.deleteItem(city);
         this.testArrayOfItems = [];
     };
     WeatherCardsMenuComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
